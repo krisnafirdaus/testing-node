@@ -20,3 +20,17 @@ describe("base.index function", () => {
     done();
   });
 });
+
+describe("base.index function", () => {
+  test('res json called with { status: true, message: "Hello World" }', (done) => {
+    const req = mockRequest();
+    const res = mockResponse();
+    base.users(req, res);
+    expect(res.status).toBeCalledWith(200);
+    expect(res.json).toBeCalledWith({
+      status: true,
+      message: "respond with a resource",
+    });
+    done();
+  });
+});
