@@ -1,32 +1,76 @@
 const request = require("supertest");
 const app = require("../app.js");
 
-describe("GET /", () => {
-  test("Return status: 200 and hello world message", (done) => {
+describe("Test example", () => {
+  test("GET /", (done) => {
     request(app)
       .get("/")
-      .then((res) => {
-        expect(res.statusCode).toBe(200);
-        expect(res.body).toHaveProperty("status");
-        expect(res.body).toHaveProperty("mesagge");
-        expect(res.body.status).toBe(true);
-        expect(res.body.message).toEqual("Hello World");
-        done();
+      .expect("Content-Type", /json/)
+      .expect(200)
+      .expect((res) => {
+        res.body.data.length = 1;
+        res.body.data[0].email = "test@example.com";
+      })
+      .end((err, res) => {
+        if (err) return done(err);
+        return done();
       });
   });
-});
+  // More things come here
 
-describe("GET /users", () => {
-  test("Return status: 200 and hello world message", (done) => {
+  test("POST /send", (done) => {
     request(app)
-      .get("/users")
-      .then((res) => {
-        expect(res.statusCode).toBe(200);
-        expect(res.body).toHaveProperty("status");
-        expect(res.body).toHaveProperty("mesagge");
-        expect(res.body.status).toBe(true);
-        expect(res.body.message).toEqual("respond with a resource");
-        done();
+      .post("/send")
+      .expect("Content-Type", /json/)
+      .send({
+        email: "francisco@example.com",
+      })
+      .expect(201)
+      .expect((res) => {
+        res.body.data.length = 2;
+        res.body.data[0].email = "test@example.com";
+        res.body.data[1].email = "francisco@example.com";
+      })
+      .end((err, res) => {
+        if (err) return done(err);
+        elementId = res.body.data[1].id;
+        return done();
+      });
+  });
+
+  test("PUT /update/:id", (done) => {
+    request(app);
+    request(app)
+      .put(`/update/${elementId}`)
+      .expect("Content-Type", /json/)
+      .send({
+        email: "mendes@example.com",
+      })
+      .expect(200)
+      .expect((res) => {
+        res.body.data.length = 2;
+        res.body.data[0].email = "test@example.com";
+        res.body.data[1].id = elementId;
+        res.body.data[1].email = "mendes@example.com";
+      })
+      .end((err, res) => {
+        if (err) return done(err);
+        return done();
+      });
+  });
+
+  test("DELETE /destroy/:id", (done) => {
+    request(app)
+      .delete(`/destroy/${elementId}`)
+      .expect("Content-Type", /json/)
+      .expect(200)
+      .expect((res) => {
+        res.body.data.length = 1;
+        res.body.data[0].email = "test@example.com";
+      })
+      .end((err, res) => {
+        if (err) return done(err);
+        return done();
       });
   });
 });

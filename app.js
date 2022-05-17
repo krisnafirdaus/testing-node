@@ -1,20 +1,38 @@
 const express = require("express");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
-
-const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
 
 const app = express();
 
-app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+const fakeDB = [
+  {
+    id: Math.floor(Math.random() * 100),
+    email: "test@example.com",
+  },
+];
+
+app.get("/", (req, res) => {
+  return res.status(200).json({ data: fakeDB });
+});
+
+app.post("/send", (req, res) => {
+  fakeDB.push({
+    id: Math.floor(Math.random() * 100),
+    email: req.body.email,
+  });
+  return res.status(201).json({ data: fakeDB });
+});
+
+app.put("/update/:id", (req, res) => {
+  const obj = fakeDB.find((el) => el.id === Number(req.params.id));
+  obj.email = req.body.email;
+  return res.status(200).json({ data: fakeDB });
+});
+
+app.delete("/destroy/:id", (req, res) => {
+  const i = fakeDB.findIndex((el) => el.id === Number(req.params.id));
+  fakeDB.splice(i, 1);
+  return res.status(200).json({ data: fakeDB });
+});
 
 module.exports = app;
